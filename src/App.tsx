@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Taskbar } from './components/Taskbar';
 import { StartMenu } from './components/StartMenu';
 import { Desktop } from './components/Desktop';
@@ -10,13 +10,63 @@ export default function App() {
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const [theme, setTheme] = useState('theme-aero');
   
+  // Audio contexts
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
   useEffect(() => {
     document.body.className = theme;
   }, [theme]);
 
-  // Keybind for easter egg
+  // Audio synthesis for system sounds
+  const playSound = (type: 'click' | 'pop' | 'swoosh' | 'error') => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    const ctx = audioCtxRef.current;
+    if (ctx.state === 'suspended') ctx.resume();
+
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    const now = ctx.currentTime;
+    
+    if (type === 'click') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, now);
+      osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+      gainNode.gain.setValueAtTime(0.3, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+      osc.start(now);
+      osc.stop(now + 0.1);
+    } else if (type === 'pop') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.exponentialRampToValueAtTime(1000, now + 0.1);
+      gainNode.gain.setValueAtTime(0.5, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } else if (type === 'swoosh') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(200, now);
+      osc.frequency.linearRampToValueAtTime(50, now + 0.3);
+      gainNode.gain.setValueAtTime(0.2, now);
+      gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    }
+  };
+
+  // Konami code easter egg
   useEffect(() => {
+    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    let konamiIndex = 0;
+
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl + Shift + A standard toggle
       if (e.ctrlKey && e.shiftKey && e.key === 'A') {
         setTheme(prev => {
           if (prev === 'theme-aero') return 'theme-metro';
@@ -24,12 +74,25 @@ export default function App() {
           return 'theme-aero';
         });
       }
+
+      // Konami code check
+      if (e.key === konamiCode[konamiIndex]) {
+        konamiIndex++;
+        if (konamiIndex === konamiCode.length) {
+          setTheme('theme-y2k');
+          konamiIndex = 0;
+          playSound('error'); // fun retro sound
+        }
+      } else {
+        konamiIndex = 0;
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const openWindow = (app: Omit<WindowApp, 'isOpen' | 'isMinimized' | 'zIndex'>) => {
+    playSound('click');
     setWindows(prev => {
       const existing = prev.find(w => w.id === app.id);
       if (existing) {
@@ -39,9 +102,15 @@ export default function App() {
     });
   };
 
-  const closeWindow = (id: string) => setWindows(prev => prev.filter(w => w.id !== id));
+  const closeWindow = (id: string) => {
+    playSound('swoosh');
+    setWindows(prev => prev.filter(w => w.id !== id));
+  };
   
-  const minimizeWindow = (id: string) => setWindows(prev => prev.map(w => w.id === id ? { ...w, isMinimized: true } : w));
+  const minimizeWindow = (id: string) => {
+    playSound('swoosh');
+    setWindows(prev => prev.map(w => w.id === id ? { ...w, isMinimized: true } : w));
+  };
   
   const focusWindow = (id: string) => {
     setWindows(prev => {
@@ -62,10 +131,9 @@ export default function App() {
     ripple.style.height = '40px';
     document.body.appendChild(ripple);
     
-    // Play subtle sound if desired here
     setTimeout(() => {
       ripple.remove();
-    }, 600);
+    }, 800);
   };
 
   return (
@@ -75,16 +143,19 @@ export default function App() {
         style={{ background: 'var(--bg-gradient)' }}
         onClick={handleBackgroundClick}
       >
-        <Desktop />
+        <Desktop playSound={playSound} />
         
         {windows.map(win => (
           <Window key={win.id} app={win} />
         ))}
 
-        <StartMenu isOpen={startMenuOpen} onClose={() => setStartMenuOpen(false)} />
+        <StartMenu isOpen={startMenuOpen} onClose={() => setStartMenuOpen(false)} playSound={playSound} />
         <Taskbar 
           startMenuOpen={startMenuOpen} 
-          toggleStartMenu={() => setStartMenuOpen(!startMenuOpen)} 
+          toggleStartMenu={() => {
+            playSound('click');
+            setStartMenuOpen(!startMenuOpen);
+          }} 
         />
       </div>
     </WindowContext.Provider>
