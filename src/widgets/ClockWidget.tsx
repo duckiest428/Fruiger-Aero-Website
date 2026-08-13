@@ -25,7 +25,19 @@ export function ClockWidget() {
   const hourDegrees = (hours / 12) * 360;
 
   return (
-    <div className="w-40 h-40 rounded-full aero-container border-[6px] border-white/60 shadow-[0_20px_40px_rgba(0,0,0,0.5),inset_0_4px_10px_rgba(0,0,0,0.3)] relative flex items-center justify-center bg-white/20 backdrop-blur-2xl group hover:scale-105 transition-transform cursor-pointer animate-float">
+    <div className="w-40 h-40 rounded-full border-[8px] shadow-[0_20px_40px_rgba(0,0,0,0.5),inset_0_4px_10px_rgba(0,0,0,0.3)] relative flex items-center justify-center bg-white/20 backdrop-blur-2xl group hover:scale-105 transition-transform cursor-pointer animate-float"
+         style={{
+           borderImage: 'linear-gradient(45deg, #d4d4d4, #ffffff, #a3a3a3, #e5e5e5) 1',
+           borderColor: '#ccc',
+           borderRadius: '50%'
+         }}>
+       {/* Brushed metal ring overlay since borderImage doesn't support border-radius easily */}
+       <div className="absolute -inset-[8px] rounded-full pointer-events-none" style={{
+         background: 'linear-gradient(135deg, #e0e0e0 0%, #ffffff 20%, #a0a0a0 50%, #f0f0f0 80%, #909090 100%)',
+         WebkitMask: 'radial-gradient(transparent 68%, black 69%)',
+         mask: 'radial-gradient(transparent 68%, black 69%)'
+       }}></div>
+       
        {/* 3D Glass Dome Highlight */}
        <div className="absolute inset-0 bg-gradient-to-br from-white/90 via-white/10 to-transparent rounded-full h-[85%] w-[85%] mx-auto mt-2 pointer-events-none z-20"></div>
        <div className="absolute bottom-2 inset-x-4 h-1/3 bg-gradient-to-t from-white/40 to-transparent rounded-b-full pointer-events-none z-20 blur-sm"></div>

@@ -18,7 +18,7 @@ export default function App() {
   }, [theme]);
 
   // Audio synthesis for system sounds
-  const playSound = (type: 'click' | 'pop' | 'swoosh' | 'error') => {
+  const playSound = (type: 'click' | 'pop' | 'swoosh' | 'error' | 'startup') => {
     if (!audioCtxRef.current) {
       audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
@@ -57,6 +57,24 @@ export default function App() {
       gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
       osc.start(now);
       osc.stop(now + 0.3);
+    } else if (type === 'startup') {
+      // Authentic Windows Vista style startup chime approximation
+      const chord = [329.63, 415.30, 493.88, 659.25]; // E major 7 approx
+      chord.forEach((freq, i) => {
+        const cOsc = ctx.createOscillator();
+        const cGain = ctx.createGain();
+        cOsc.type = 'sine';
+        cOsc.frequency.setValueAtTime(freq, now + (i * 0.1));
+        cGain.gain.setValueAtTime(0, now);
+        cGain.gain.linearRampToValueAtTime(0.2, now + (i * 0.1) + 0.5);
+        cGain.gain.exponentialRampToValueAtTime(0.01, now + 3);
+        cOsc.connect(cGain);
+        cGain.connect(ctx.destination);
+        cOsc.start(now + (i * 0.1));
+        cOsc.stop(now + 3);
+      });
+      // We don't start the main osc for startup since we built a chord
+      return;
     }
   };
 
@@ -79,9 +97,13 @@ export default function App() {
       if (e.key === konamiCode[konamiIndex]) {
         konamiIndex++;
         if (konamiIndex === konamiCode.length) {
-          setTheme('theme-y2k');
+          setTheme(prev => {
+            if (prev === 'theme-aero') return 'theme-metro';
+            if (prev === 'theme-metro') return 'theme-y2k';
+            return 'theme-aero';
+          });
           konamiIndex = 0;
-          playSound('error'); // fun retro sound
+          playSound('startup');
         }
       } else {
         konamiIndex = 0;

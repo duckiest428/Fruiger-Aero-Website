@@ -33,15 +33,22 @@ export function WeatherWidget() {
       {weather === 'rainy' && (
         <div className="relative flex flex-col items-center">
           <CloudRain size={80} className="text-gray-300 drop-shadow-[0_10px_10px_rgba(0,0,0,0.3)]" />
-          <div className="absolute top-12 flex gap-2">
+          <div className="absolute top-[60px] flex gap-2">
             {[1, 2, 3].map(i => (
               <div 
                 key={i} 
-                className="w-1 h-4 bg-blue-300 rounded-full animate-pulse" 
-                style={{ animationDelay: `${i * 0.2}s` }} 
+                className="w-1 h-3 bg-blue-300/80 rounded-full animate-[rain_1s_linear_infinite]" 
+                style={{ animationDelay: `${i * 0.3}s` }} 
               />
             ))}
           </div>
+          <style>{`
+            @keyframes rain {
+              0% { transform: translateY(0) scaleY(1); opacity: 1; }
+              70% { transform: translateY(40px) scaleY(1.5); opacity: 0.8; }
+              100% { transform: translateY(50px) scaleY(1); opacity: 0; }
+            }
+          `}</style>
         </div>
       )}
       
