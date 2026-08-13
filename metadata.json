@@ -1,0 +1,6 @@
+{
+  "name": "Aero Desktop",
+  "description": "A Frutiger Aero themed web desktop environment",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

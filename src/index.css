@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+:root {
+  --bg-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --glass-bg: rgba(255, 255, 255, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  --text-primary: #1a202c;
+  --window-header: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.4));
+}
+
+body.theme-aero {
+  --bg-gradient: radial-gradient(circle at 50% 10%, #c4e0e5 0%, #4ca1af 100%);
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 10px 40px 0 rgba(0, 100, 200, 0.25);
+  --window-header: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(200,230,255,0.4) 49%, rgba(150,200,255,0.2) 50%, rgba(200,240,255,0.4) 100%);
+  --text-primary: #0f172a;
+}
+
+body.theme-metro {
+  --bg-gradient: #0078D7;
+  --glass-bg: #005a9e;
+  --glass-border: transparent;
+  --glass-shadow: none;
+  --window-header: #0078D7;
+  --text-primary: #ffffff;
+}
+
+body.theme-y2k {
+  --bg-gradient: repeating-linear-gradient(45deg, #c0c0c0, #c0c0c0 10px, #e0e0e0 10px, #e0e0e0 20px);
+  --glass-bg: #c0c0c0;
+  --glass-border: transparent;
+  --glass-shadow: 2px 2px 0px #000;
+  --window-header: linear-gradient(to right, #000080, #1084d0);
+  --text-primary: #000;
+}
+
+body {
+  cursor: default; /* Can replace with a custom aero cursor url if we had one */
+}
+
+/* Base styles for Aero */
+.aero-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 12px;
+}
+
+/* Hard edges for Metro / Y2K */
+body.theme-metro .aero-container,
+body.theme-y2k .aero-container {
+  border-radius: 0;
+  backdrop-filter: none;
+}
+body.theme-y2k .aero-container {
+  border: inset 2px #fff;
+  border-bottom-color: #808080;
+  border-right-color: #808080;
+}
+
+.aero-button {
+  background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(220,220,220,0.5) 49%, rgba(180,180,180,0.3) 50%, rgba(220,220,220,0.5) 100%);
+  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.9), 0 2px 5px rgba(0,0,0,0.15);
+  transition: all 0.2s;
+}
+
+.aero-button:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(230,245,255,0.6) 49%, rgba(180,220,255,0.4) 50%, rgba(220,240,255,0.6) 100%);
+}
+
+.aero-button:active {
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes rise {
+  0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
+  20% { opacity: 0.7; }
+  80% { opacity: 0.7; }
+  100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.4) 100%);
+  box-shadow: inset 0 0 15px rgba(255,255,255,0.6), 0 0 8px rgba(255,255,255,0.3);
+  animation: rise 10s infinite ease-in;
+  pointer-events: none;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-anim 600ms ease-out forwards;
+  background-color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+  box-shadow: 0 0 15px rgba(255,255,255,0.8), inset 0 0 10px rgba(255,255,255,0.5);
+}
+
+@keyframes ripple-anim {
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
